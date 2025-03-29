@@ -1,0 +1,28 @@
+import datetime
+from mongoengine import Document, StringField, EmailField, ReferenceField, DateTimeField, DateField
+
+
+class Patient(Document):
+    wallet_id = StringField(unique=True)
+    med_vault_id = StringField(unique=True)
+    name = StringField(required=True, unique=True)
+    email = EmailField(required=True, unique=True)
+    phone_number = StringField(required=True, max_length=11, unique=True)
+    DOB = DateField(required=False)
+    gender = StringField(required=False)
+    address = StringField(required=False)
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    def __str__(self):
+        return self.name
+
+
+class NextOfKin(Document):
+    name = StringField(required=True, unique=True)
+    email = EmailField(required=True, unique=True)
+    phone_number = StringField(required=True, max_length=11, unique=True)
+    patient = ReferenceField(Patient, required=True, related_name='next_of_kin')
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    def __str__(self):
+        return self.name
