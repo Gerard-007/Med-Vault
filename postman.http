@@ -1,0 +1,23 @@
+@base=http://localhost:5000/api
+
+
+### Register a patient...
+POST {{base}}/patient/register
+Content-Type: application/json
+
+{
+  "name": "Gerard Nwazk",
+  "email": "gnwazk@gmail.com",
+  "phone_number": "08186612324",
+  "password": "Pass=123"
+}
+
+
+### Register a patient...
+POST {{base}}/patient/login
+Content-Type: application/json
+
+{
+  "email": "gnwazk@gmail.com",
+  "password": "Pass=123"
+}

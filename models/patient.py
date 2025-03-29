@@ -7,6 +7,7 @@ class Patient(Document):
     med_vault_id = StringField(unique=True)
     name = StringField(required=True, unique=True)
     email = EmailField(required=True, unique=True)
+    password = StringField(required=True, min_length=8)
     phone_number = StringField(required=True, max_length=11, unique=True)
     DOB = DateField(required=False)
     gender = StringField(required=False)

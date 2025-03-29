@@ -4,7 +4,7 @@ import requests
 
 
 def generate_med_vault_id() -> str:
-    return f"MV-{random.randrange(00000,00000) or random.randrange(00000,00000)+1}"
+    return f"MV-{random.randrange(00000,99999) or random.randrange(00000,99999)+1}"
 
 def confirm_hospital_HPRID(HPRID):
     try:

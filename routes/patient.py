@@ -30,12 +30,16 @@ def register_patient_view():
         email = data["email"]
         phone_number = data["phone_number"]
         password = data["password"]
+        print(data)
         if not all([name, email, password, phone_number]):
             return jsonify({"error": "All fields are required."}), 400
-        result = register_patient(name, email, phone_number)
-        wallet_id = result["effects"]["created"][0]["reference"]["objectId"]
+        if Patient.objects(email=data['email']).first():
+            return jsonify({'error': 'Email already registered'}), 400
+        # result = register_patient(name, email, phone_number)
+        # wallet_id = result["effects"]["created"][0]["reference"]["objectId"]
+        print(f"med_vault_id: {generate_med_vault_id()}")
         patient = Patient(
-            wallet_id=wallet_id,
+            wallet_id=None,
             med_vault_id=generate_med_vault_id(),
             name=name,
             email=email,
@@ -50,7 +54,7 @@ def register_patient_view():
             "message": f"Patient {patient.name} registered successfully",
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "wallet_id": wallet_id
+            "wallet_id": patient.wallet_id
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500

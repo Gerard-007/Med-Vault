@@ -15,7 +15,7 @@ class Config:
 def initialize_db():
     username = os.getenv("MONGO_USERNAME")
     password = os.getenv("MONGO_PASSWORD")
-    MONGO_URI = str(f"mongodb+srv://{username}:{password}@cluster0.tvycbjn.mongodb.net/med_vault_emr?retryWrites=true&w=majority")
+    MONGO_URI = str(f"mongodb+srv://geetechlab:Gerard-007@cluster0.tvycbjn.mongodb.net/med_vault_emr?retryWrites=true&w=majority")
     try:
         connect(host=MONGO_URI)
         print("Connected to MongoDB!")
