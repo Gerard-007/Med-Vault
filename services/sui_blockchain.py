@@ -1,3 +1,24 @@
+# from pysui.sui.sui_clients.sync_client import SuiClient
+# from pysui.sui.sui_config import SuiConfig
+
+
+# sui_config = SuiConfig.default_config()
+# print(f"Connecting to RPC: {sui_config.rpc_url}")
+# sui_client = SuiClient(sui_config)
+#
+#
+# def generate_med_vault_id():
+#     return "some_unique_id"
+#
+#
+# def create_sui_wallet():
+#     mnemonic = sui_client.config.generate_mnemonic()
+#     keypair = sui_client.config.keypair_from_mnemonic(mnemonic)
+#
+#     wallet_address = keypair.public_key.to_sui_address()
+#     return wallet_address, mnemonic
+
+
 def register_patient(name, email, phone):
     client = None
     result = client.execute_move_function(

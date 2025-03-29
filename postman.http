@@ -1,4 +1,5 @@
 @base=http://localhost:5000/api
+@patient_access=Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MzI1MDQxNiwianRpIjoiMWFhYTUzZTItMzAxNi00Zjc0LWE4ZDAtYjYwNjI1NDBkNWE0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Imdud2F6a0BnbWFpbC5jb20iLCJuYmYiOjE3NDMyNTA0MTYsImNzcmYiOiI4ZDg1ZGVlMC00MjFkLTQ3ZDQtYTRkOC1lODNkMDkxY2Y5ZDEiLCJleHAiOjE3NDMzMzY4MTZ9.sO-_4oRiLLzxUHxAWGxB4MUCR7LFZ0Ch__Md83SQKTU
 
 
 ### Register a patient...
@@ -13,7 +14,7 @@ Content-Type: application/json
 }
 
 
-### Register a patient...
+### Login a patient...
 POST {{base}}/patient/login
 Content-Type: application/json
 
@@ -21,3 +22,29 @@ Content-Type: application/json
   "email": "gnwazk@gmail.com",
   "password": "Pass=123"
 }
+
+
+### Add next of kin...
+POST {{base}}/patient/add-next-of-kin
+Content-Type: application/json
+Authorization: {{patient_access}}
+
+{
+  "name": "Chinasa Nwazk",
+  "email": "cynthiachuks@gmail.com",
+  "phone_number": "08038363914",
+  "relationship": "Wife"
+}
+
+
+### Update Profile...
+POST {{base}}/patient/profile
+Content-Type: application/json
+Authorization: {{patient_access}}
+
+{
+  "dob": "1990-11-18",
+  "gender": "Male",
+  "address": "123 Main St"
+}
+

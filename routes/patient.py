@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers.utils.commons import generate_med_vault_id
 from models.patient import Patient, NextOfKin
-from services.sui_blockchain import register_patient
+# from services.sui_blockchain import create_sui_wallet
 
 patient = Blueprint('patient', __name__)
 
@@ -35,9 +35,12 @@ def register_patient_view():
             return jsonify({"error": "All fields are required."}), 400
         if Patient.objects(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 400
-        # result = register_patient(name, email, phone_number)
-        # wallet_id = result["effects"]["created"][0]["reference"]["objectId"]
-        print(f"med_vault_id: {generate_med_vault_id()}")
+
+        # wallet_address, mnemonic = create_sui_wallet()
+        # print(f"Created wallet with address: {wallet_address}")
+        #
+        # med_vault_id = generate_med_vault_id()
+        # print(f"med_vault_id: {med_vault_id}")
         patient = Patient(
             wallet_id=None,
             med_vault_id=generate_med_vault_id(),
@@ -60,32 +63,11 @@ def register_patient_view():
         return jsonify({"error": str(e)}), 500
 
 
-@patient.route("/add-next-of-kin", methods=["POST"])
-def add_next_of_kin():
-    try:
-        data = request.json
-        name = data["name"]
-        email = data["email"]
-        phone_number = data["phone_number"]
-        nok = NextOfKin(
-            name=name,
-            email=email,
-            phone_number=phone_number,
-        ).save()
-        return jsonify({
-            "status": "success",
-            "message": f"Next of kin {nok.name} successfully added for {nok.patient.name}"
-        }), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @patient.route("/login", methods=["POST"])
 def login():
     data = request.json
     email = data.get("email")
     password = data.get("password")
-
     patient = verify_patient_password(email, password)
 
     if not patient:
@@ -100,17 +82,49 @@ def login():
     }), 200
 
 
-@patient.route("/profile", methods=["GET"])
+@patient.route("/profile", methods=["POST"])
 @jwt_required()
 def profile():
-    current_user = get_jwt_identity()
-    patient = Patient.objects(phone_number=current_user).first()
+    current_patient = get_jwt_identity()
+    patient = Patient.objects(email=current_patient).first()
+    if not patient:
+        return jsonify({"error": "Patient not found"}), 404
     data = request.json
-    dob = data["DOB"] or None
-    gender = data["gender"] or None
-    address = data["address"] or None
+    dob = data["dob"] or ""
+    gender = data["gender"] or ""
+    address = data["address"] or ""
     patient.update(DOB=dob, gender=gender, address=address)
     return jsonify({
         "status": "success",
         "message": "Profile updated successfully",
     }), 200
+
+
+@patient.route("/add-next-of-kin", methods=["POST"])
+@jwt_required()
+def add_next_of_kin():
+    current_patient = get_jwt_identity()
+    patient = Patient.objects(email=current_patient).first()
+    if not patient:
+        return jsonify({"error": "Patient not found"}), 404
+    try:
+        data = request.json
+        if NextOfKin.objects(email=data['email']).first():
+            return jsonify({'error': 'Next of kin already added.'}), 400
+        name = data["name"]
+        email = data["email"]
+        phone_number = data["phone_number"]
+        relationship = data["relationship"]
+        nok = NextOfKin(
+            name=name,
+            email=email,
+            phone_number=phone_number,
+            relationship=relationship,
+            patient=patient,
+        ).save()
+        return jsonify({
+            "status": "success",
+            "message": f"Next of kin {nok.name} successfully added for {nok.patient.name}"
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
