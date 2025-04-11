@@ -72,9 +72,15 @@ To set up the project locally, follow these steps:
    ```
 
 2. **Set Up Virtual Environment**:
+   - Virtual Environment
    ```
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+   - Pipenv
+   ```
+   pipenv install --dev
+   pipenv shell
    ```
 
 3. **Install Dependencies**:
@@ -110,12 +116,12 @@ To set up the project locally, follow these steps:
 ### Hospital Workflow
 
 1. **Register Hospital**:
-   - POST to `/api/hospital/register-hospital` with hospital details (`name`, `email`, `password`, `HPRID`).
+   - POST to `/api/hospital/register` with hospital details (`name`, `email`, `phone_number`, `password`, `HPRID`).
    - Example:
      ```
      curl -X POST http://localhost:5000/api/hospital/register-hospital \
        -H "Content-Type: application/json" \
-       -d '{"name": "St. Mary's Hospital", "email": "stmarys@example.com", "password": "securepassword123", "HPRID": "HPR12345"}'
+       -d '{"name": "St. Mary's Hospital", "email": "stmarys@example.com", "phone_number": "08012345678", "password": "securepassword123", "HPRID": "HPR12345"}'
      ```
 
 2. **Confirm HPRID**:
@@ -140,7 +146,7 @@ To set up the project locally, follow these steps:
        -d '{"hospital_name": "St. Mary's Hospital", "selected_tables": ["TreatmentProgressNotes", "MedicationHistory"]}'
      ```
 
-5. **Update Patient Data**:
+5. **(STILL IN PROGRESS) Update Patient Data**:
    - POST to `/api/hospital/update-patient-data` with the token and updates.
    - Example:
      ```
@@ -177,15 +183,15 @@ To set up the project locally, follow these steps:
 
 ## Endpoints
 
-| Endpoint                                          | Method | Description                                   |
-|---------------------------------------------------|--------|-----------------------------------------------|
-| `/api/hospital/register-hospital`                 | POST   | Register a new hospital.                      |
-| `/api/hospital/login`                             | POST   | Hospital login to get access tokens.          |
-| `/api/hospital/request-access`                    | POST   | Generate a token for hospital access.         |
-| `/api/hospital/update-patient-data`               | POST   | Update patient data using a token.           |
-| `/api/hospital/fetch-patient-data/<phone_number>` | GET | Fetch patient data by phone number. |
-| `/api/patient/login`                              | POST   | Patient login to get access tokens.           |
-| `/api/patient/profile`                            | GET    | Update patient profile information.           |
+| Endpoint                                          | Method | Description                           |
+|---------------------------------------------------|--------|---------------------------------------|
+| `/api/hospital/register`                          | POST   | Register a new hospital.              |
+| `/api/hospital/login`                             | POST   | Hospital login to get access tokens.  |
+| `/api/hospital/request-access`                    | POST   | Generate a token for hospital access. |
+| `/api/hospital/update-patient-data`               | POST   | Update patient data using a token.    |
+| `/api/hospital/fetch-patient-data/<phone_number>` | GET    | Fetch patient data by phone number.   |
+| `/api/patient/login`                              | POST   | Patient login to get access tokens.   |
+| `/api/patient/profile`                            | GET    | Update patient profile information.   |
 
 ---
 

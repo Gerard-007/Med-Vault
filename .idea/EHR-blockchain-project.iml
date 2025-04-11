@@ -5,9 +5,15 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/build" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/src/build" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/src/hello_sui/build" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/basics/build" />
+      <excludeFolder url="file://$MODULE_DIR$/blockchain/devhub/build" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Pipenv (EHR-blockchain-project)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">

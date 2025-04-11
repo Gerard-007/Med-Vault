@@ -2,15 +2,17 @@ from datetime import timedelta
 
 import jwt
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import create_access_token, create_refresh_token
-from mongoengine import NotUniqueError
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from mongoengine import NotUniqueError, Q
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers.managers.access_control import HospitalAccessControl
 from helpers.managers.ehr_manager import EHRManager
 from helpers.utils.commons import confirm_hospital_HPRID
 from models.hospital import Hospital
-
+from helpers.utils.otp_utils import send_otp
+from helpers.utils.commons import clean_phone_number
+from models.patient import Patient
 
 hospital = Blueprint('hospital', __name__)
 
@@ -26,23 +28,37 @@ def verify_hospital_password(email, password):
     return None
 
 
-@hospital.route("/register-hospital", methods=["POST"])
+@hospital.route("/register", methods=["POST"])
 def register_hospital():
     data = request.json
     name = data.get("name")
     email = data.get("email")
+    phone_number = data.get("phone_number")
     password = data.get("password")
     HPRID = data.get("HPRID")
 
     if not all([name, email, password, HPRID]):
         return jsonify({"error": "All fields are required."}), 400
 
+    if Hospital.objects(Q(email=email)).first():
+        return jsonify({"error": "Email already registered."}), 400
+
+    if Hospital.objects(Q(phone_number=phone_number)).first():
+        return jsonify({"error": "Phone number already registered."}), 400
+
     try:
         if not confirm_hospital_HPRID(HPRID):
             return jsonify({"error": "Invalid HPRID. Please provide a valid HPRID."}), 400
+
+        cleaned_phone_number = clean_phone_number(phone_number)
+        print(f"cleaned_phone_number: {cleaned_phone_number}")
+        if not cleaned_phone_number:
+            return jsonify({"error": "Somthing went wrong when saving your phone number please check it again."}), 400
         hospital = Hospital(
             name=name,
+            med_vault_id = f"MV-H{cleaned_phone_number}",
             email=email,
+            phone_number=phone_number,
             password=generate_password_hash(password),
             HPRID=HPRID,
             activated=True
@@ -85,23 +101,33 @@ def login():
 
 
 @hospital.route("/request-access", methods=["POST"])
+@jwt_required()
 def request_access():
     """Generate a token for hospital access."""
+    current_hospital = get_jwt_identity()
+    hospital = Hospital.objects(email=current_hospital).first()
     data = request.json
-    hospital_name = data.get("hospital_name")
+    patient = Patient.objects(email=data.get("email")).first()
+    hospital_name = hospital.name
     selected_tables = data.get("selected_tables", [])
     access_control = HospitalAccessControl()
     token = access_control.generate_token(hospital_name, selected_tables)
-    return jsonify({"token": token}), 200
+    send_otp(patient.phone_number, hospital, token)
+    return jsonify({
+        "message": f"We have sent the authorization otp to the {patient.name}"
+    }), 200
 
 
 @hospital.route("/update-patient-data", methods=["POST"])
 def update_patient_data():
+    """Update patient data using the provided token and invalidate the token afterward."""
     data = request.json
     token = data.get("token")
     updates = data.get("updates", {})
     access_control = HospitalAccessControl()
-    return access_control.update_records(token, updates)
+    # Update records and invalidate the token
+    response = access_control.update_records(token, updates)
+    return response
 
 
 @hospital.route("/fetch-patient-data/<string:patient_phone_number>", methods=["GET"])

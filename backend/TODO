@@ -1,0 +1,26 @@
+Steps
+Done(50%) - Patient registers to the platform either by clicking to generate wallet phrase or use their social media account like google auth to generate sui wallet
+
+Done(100%) - Patient enters their details and registers their next of kin
+
+TODO - Patient restricts next of kin from viewing sensitive datas but only their Name, email etc.. apart from medical records.
+
+TODO - All patient datas eg `patient-wallet-id: {MedicalReport: [{}, {}, {}...], Diagnosis: [{}, {}, {}...], Alergies: []}` are encrypted and stored to walrux
+
+Done(80%) - Hospital or medical clinics registers with our platform and generate access token for fetching patient information when they click to get patient MHR an OTP is sent to the patient email or phone to confirm,
+
+TODO - Incase of patient with fatal injury hospital can scan for patient alias by 1, entering patients name found in their id card or credentials, 2, scanning with their face, or thumbprint
+
+TODO - If Patient ID is obtained, should display patient basic information with next of kin to contact, the clinic then click to get patient MHR via next of kin  an OTP is sent to the next of kin email or phone to confirm, this only happens when next of kin is in fatal injury or comma.
+
+The EHR typically includes the following data/tables/class:
+    Demographics
+    Treatment progress notes
+    Medical history
+    Medication history
+    Allergy data
+    Core vital signs
+    Health issues
+    Immunization records
+    Laboratory test results
+    Radiology reports

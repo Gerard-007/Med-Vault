@@ -4,7 +4,8 @@ from flask import Blueprint, request, jsonify
 from authlib.integrations.flask_client import OAuth
 from flask_jwt_extended import jwt_required, create_access_token, create_refresh_token, get_jwt_identity
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from models.patient import Patient, NextOfKin
+
+from models.patient import Patient
 
 auth = Blueprint('auth', __name__)
 oauth = OAuth()

@@ -2,10 +2,14 @@ from datetime import timedelta
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from mongoengine import Q
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers.utils.commons import generate_med_vault_id
 from models.patient import Patient, NextOfKin
+
+from helpers.utils.commons import clean_phone_number
+
 # from services.sui_blockchain import create_sui_wallet
 
 patient = Blueprint('patient', __name__)
@@ -30,20 +34,24 @@ def register_patient_view():
         email = data["email"]
         phone_number = data["phone_number"]
         password = data["password"]
-        print(data)
         if not all([name, email, password, phone_number]):
             return jsonify({"error": "All fields are required."}), 400
+
         if Patient.objects(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 400
+
+        if Patient.objects(Q(phone_number=phone_number)).first():
+            return jsonify({"error": "Phone number already registered."}), 400
 
         # wallet_address, mnemonic = create_sui_wallet()
         # print(f"Created wallet with address: {wallet_address}")
         #
         # med_vault_id = generate_med_vault_id()
         # print(f"med_vault_id: {med_vault_id}")
+        cleaned_phone_number = clean_phone_number(phone_number)
         patient = Patient(
             wallet_id=None,
-            med_vault_id=generate_med_vault_id(),
+            med_vault_id=f"MV-P{cleaned_phone_number}",
             name=name,
             email=email,
             password=generate_password_hash(password),
@@ -90,10 +98,11 @@ def profile():
     if not patient:
         return jsonify({"error": "Patient not found"}), 404
     data = request.json
+    transaction_pin = data["transaction_pin"] or ""
     dob = data["dob"] or ""
     gender = data["gender"] or ""
     address = data["address"] or ""
-    patient.update(DOB=dob, gender=gender, address=address)
+    patient.update(transaction_pin=transaction_pin, DOB=dob, gender=gender, address=address)
     return jsonify({
         "status": "success",
         "message": "Profile updated successfully",
