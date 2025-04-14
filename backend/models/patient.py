@@ -1,21 +1,26 @@
 import datetime
-from email.quoprimime import body_check
 
-from mongoengine import signals, Document, StringField, EmailField, ReferenceField, DateTimeField, DateField, Q
+from mongoengine import ListField, FloatField, signals, Document, StringField, EmailField, ReferenceField, DateTimeField, DateField, Q, \
+    BinaryField
 from helpers.utils.commons import TimeStamp
 
 
 class Patient(TimeStamp):
-    med_vault_id = StringField(unique=True)
-    transaction_pin = StringField(max_length=4, required=False)
     wallet_id = StringField(unique=True)
-    name = StringField(required=True, unique=True)
+    med_vault_id = StringField(unique=True)
+    name = StringField(required=True)
     email = EmailField(required=True, unique=True)
-    password = StringField(required=True, min_length=8)
-    phone_number = StringField(required=True, max_length=11, unique=True)
-    DOB = DateField(required=False)
-    gender = StringField(required=False, choices=["Male", "Female", "Other"])
-    address = StringField(required=False)
+    password = StringField(required=True)
+    phone_number = StringField(required=True, unique=True)
+    DOB = DateField()
+    gender = StringField()
+    address = StringField()
+    encrypted_ehr_file = BinaryField()
+    encrypted_key = BinaryField()
+    walrus_blob_id = StringField()
+    encrypted_mnemonic = BinaryField()
+    facial_embedding = ListField(FloatField())
+    fingerprint_template = StringField()
 
     def __str__(self):
         return self.name

@@ -1,44 +1,36 @@
-import secrets
-import string
+import json
 from flask import jsonify
 from helpers.managers.ehr_manager import EHRManager
+import redis
+import uuid
+from datetime import timedelta
 
 
 class HospitalAccessControl:
     def __init__(self):
-        self.access_permissions = {}
-        self.tokens = {}  # Dictionary to store active tokens
+        self.redis = redis.Redis(host="redis", port=6379, decode_responses=True)
 
-    def generate_token(self, hospital_name, selected_tables):
-        """Generate a 6-character token (3 alphabets + 3 digits)."""
-        self.access_permissions[hospital_name] = selected_tables
-
-        # Generate a 6-character token: 3 alphabets + 3 digits
-        alphabet = string.ascii_letters  # Includes both uppercase and lowercase letters
-        digits = string.digits
-        token_parts = [
-            ''.join(secrets.choice(alphabet) for _ in range(3)),  # 3 random alphabets
-            ''.join(secrets.choice(digits) for _ in range(3))  # 3 random digits
-        ]
-        token = ''.join(token_parts)  # Combine alphabets and digits
-
-        # Store the token in memory
-        self.tokens[token] = {"hospital_name": hospital_name, "tables": selected_tables}
+    def generate_token(self, hospital_name, selected_tables, med_vault_id):
+        token = str(uuid.uuid4())
+        self.redis.setex(
+            f"access_token:{token}",
+            timedelta(minutes=10),
+            json.dumps({
+                "hospital_name": hospital_name,
+                "selected_tables": selected_tables,
+                "med_vault_id": med_vault_id
+            })
+        )
         return token
 
     def verify_token(self, token):
-        """Verify the token and return the hospital name and allowed tables."""
-        if token not in self.tokens:
-            return None, []
-
-        hospital_name = self.tokens[token]["hospital_name"]
-        selected_tables = self.tokens[token]["tables"]
-        return hospital_name, selected_tables
+        data = self.redis.get(f"access_token:{token}")
+        if data:
+            return json.loads(data)
+        return None
 
     def invalidate_token(self, token):
-        """Invalidate the token by removing it from storage."""
-        if token in self.tokens:
-            del self.tokens[token]
+        self.redis.delete(f"access_token:{token}")
 
     def update_records(self, token, updates):
         """Update patient data using the provided token and invalidate the token afterward."""

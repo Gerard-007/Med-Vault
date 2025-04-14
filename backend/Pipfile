@@ -13,6 +13,8 @@ cryptography = "*"
 crypto = "*"
 pysui = "*"
 authlib = "*"
+redis = {extras = ["hiredis"], version = "*"}
+deepface = "*"
 
 [dev-packages]
 

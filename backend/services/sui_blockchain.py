@@ -1,45 +1,61 @@
-# from pysui.sui.sui_clients.sync_client import SuiClient
-# from pysui.sui.sui_config import SuiConfig
+import os
+from pysui import SyncClient, SuiConfig
+from pysui.sui.sui_crypto import keypair_from_mnemonics, create_new_keypair_ed25519
+from cryptography.fernet import Fernet
+from backend.models.patient import Patient
 
+MASTER_KEY = os.environ.get('MASTER_KEY')
+if not MASTER_KEY:
+    raise ValueError("MASTER_KEY environment variable must be set")
+fernet = Fernet(MASTER_KEY)
 
-# sui_config = SuiConfig.default_config()
-# print(f"Connecting to RPC: {sui_config.rpc_url}")
-# sui_client = SuiClient(sui_config)
-#
-#
-# def generate_med_vault_id():
-#     return "some_unique_id"
-#
-#
-# def create_sui_wallet():
-#     mnemonic = sui_client.config.generate_mnemonic()
-#     keypair = sui_client.config.keypair_from_mnemonic(mnemonic)
-#
-#     wallet_address = keypair.public_key.to_sui_address()
-#     return wallet_address, mnemonic
+def decrypt_mnemonic(encrypted_mnemonic):
+    return fernet.decrypt(encrypted_mnemonic).decode()
 
+def create_sui_wallet():
+    keypair = create_new_keypair_ed25519()
+    mnemonic = keypair.mnemonic()
+    address = keypair.public_key.address()
+    encrypted_mnemonic = fernet.encrypt(mnemonic.encode())
+    return address, encrypted_mnemonic
 
-def register_patient(name, email, phone):
-    client = None
-    result = client.execute_move_function(
-        package="<0x0....>",
-        module="PatientRegistration",
-        function="register_patient",
-        args=[name, email, phone],
+def get_sui_public_key(wallet_id):
+    patient = Patient.objects(wallet_id=wallet_id).first()
+    if not patient:
+        raise ValueError("Patient not found")
+    mnemonic = decrypt_mnemonic(patient.encrypted_mnemonic)
+    keypair = keypair_from_mnemonics(mnemonic)
+    return keypair.public_key.to_bytes()
+
+def get_sui_private_key(wallet_id):
+    patient = Patient.objects(wallet_id=wallet_id).first()
+    if not patient:
+        raise ValueError("Patient not found")
+    mnemonic = decrypt_mnemonic(patient.encrypted_mnemonic)
+    keypair = keypair_from_mnemonics(mnemonic)
+    return keypair.private_key.to_bytes()
+
+def store_to_walrus(encrypted_data, wallet_id):
+    # Configure for Sui testnet
+    config = SuiConfig.user_config(rpc_url="https://fullnode.testnet.sui.io:443")
+    client = SyncClient(config)
+    
+    # Replace with your deployed package ID
+    package_id = "0xYourPackageIdHere"  # Update after deploying contract
+    tx_result = client.execute(
+        package_id=package_id,
+        module_name="ehr_module",
+        function_name="store_ehr",
         type_args=[],
-        gas_budget=10000,
+        args=[encrypted_data, wallet_id],
+        gas_budget=1000000  # Adjust based on testnet fees
     )
-    return result
-
-
-def fetch_patient_data(wallet_id):
-    client = None
-    result = client.execute_move_function(
-        package="<0x0....>",
-        module="DataStorage",
-        function="get_encrypted_data",
-        args=[wallet_id],
-        type_args=[],
-        gas_budget=10000,
-    )
-    return result
+    
+    if tx_result.is_ok():
+        # Extract blob_id from transaction effects (assumes returned by walrus::store)
+        effects = tx_result.result_data.effects
+        for event in effects.events:
+            if "blob_id" in event:
+                return event["blob_id"].encode()  # Convert to bytes
+        return b"mock_blob_id"  # Fallback for testing
+    raise Exception(f"Failed to store to Walrus: {tx_result.result_string}")
