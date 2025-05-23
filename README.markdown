@@ -1,4 +1,5 @@
 # MedVault: Decentralized EHR Management System
+![App Screenshot](https://res.cloudinary.com/geetechlab-com/image/upload/v1748015527/med_vault/health_Vault_bmkcvo.png)
 
 ## Overview
 MedVault is a decentralized Electronic Health Record (EHR) management system that leverages blockchain technology for secure, transparent, and patient-controlled health data storage. Built with a **Flask** backend, **React** frontend, and **Sui blockchain** smart contracts, it enables patients to manage their EHRs, hospitals to access and update records with permission, and next-of-kin to view data in emergencies. The system uses **MongoDB** for data storage, **Redis** for caching, and **PyCryptodome** for encryption, ensuring robust security and performance.
