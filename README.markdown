@@ -211,10 +211,14 @@ Contributions are welcome! Please:
 5. Open a pull request.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) file for details.
 
 ## Contact
-For questions or support, contact [your-email@example.com](mailto:your-email@example.com).
+For questions or support, contact 
+- [@Gerard-007](https://www.github.com/Gerard-007)
+- [@EzeanoroEbuka](https://www.github.com/EzeanoroEbuka)
+- [@Eobabs](https://www.github.com/eobabs)
+- [@Mfonmfon](https://www.github.com/mfonmfon)
 
 ---
 *Generated on May 23, 2025*
