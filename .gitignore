@@ -57,7 +57,6 @@ ipython_config.py
 celerybeat-schedule
 celerybeat.pid
 *.sage.py
-.env
 .venv
 env/
 venv/

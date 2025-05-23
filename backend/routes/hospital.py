@@ -8,8 +8,8 @@ from mongoengine import NotUniqueError, Q
 from werkzeug.security import check_password_hash, generate_password_hash
 from deepface import DeepFace
 from numpy import linalg
-from backend.routes.patient import encrypt_file
-from backend.services.sui_blockchain import store_to_walrus
+from routes.patient import encrypt_file
+from services.sui_blockchain import store_to_walrus
 from helpers.managers.access_control import HospitalAccessControl
 from helpers.managers.ehr_manager import EHRManager
 from helpers.utils.commons import confirm_hospital_HPRID

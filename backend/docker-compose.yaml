@@ -1,11 +1,18 @@
 version: '3'
 services:
   redis:
-    image: redis:6.2
+    image: redis:latest
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
   web:
     build: .
@@ -13,6 +20,13 @@ services:
       - "5000:5000"
     depends_on:
       - redis
+      - mongo
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MASTER_KEY=${MASTER_KEY}
+      - MONGO_URI=mongodb://mongo:27017/medvault
 
 volumes:
   redis_data:
+  mongo_data:
